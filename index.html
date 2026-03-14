@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>宝贝单词存钱罐</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --main-color: #ff8fa3; --bg-color: #fff0f3; }
+        body { font-family: 'PingFang SC', sans-serif; background: var(--bg-color); display: flex; flex-direction: column; align-items: center; padding: 20px; color: #444; margin: 0; }
+        .card { background: white; border-radius: 24px; padding: 30px; box-shadow: 0 10px 30px rgba(255,143,163,0.2); text-align: center; width: 90%; max-width: 400px; margin-top: 40px; }
+        .title { font-size: 1.2rem; color: #888; margin-bottom: 10px; }
+        .balance { font-size: 60px; font-weight: bold; color: var(--main-color); margin: 10px 0; }
+        .stats { display: flex; justify-content: space-around; margin: 20px 0; padding: 15px 0; border-top: 1px solid #eee; }
+        .stat-item span { display: block; font-weight: bold; font-size: 18px; }
+        .btn { background: var(--main-color); border: none; padding: 18px; border-radius: 50px; color: white; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; margin-top: 15px; box-shadow: 0 5px 15px rgba(255,143,163,0.3); }
+        .btn:active { transform: scale(0.96); opacity: 0.9; }
+        .btn-fail { background: #adb5bd; box-shadow: none; font-size: 14px; margin-top: 25px; }
+        .loading { font-size: 12px; color: #ccc; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="title">💰 考试奖金池 💰</div>
+        <div class="balance">¥<span id="money">--</span></div>
+        
+        <div class="stats">
+            <div class="stat-item">成功<span id="winCount">--</span></div>
+            <div class="stat-item">漏打<span id="lossCount">--</span></div>
+        </div>
+
+        <button class="btn" onclick="updateRecord(5, 1, 0)">✨ 今日已背单词 (+5)</button>
+        <button class="btn btn-fail" onclick="updateRecord(-10, 0, 1)">没背单词罚款 (-10)</button>
+        <div id="status" class="loading">数据实时同步中...</div>
+    </div>
+
+    <script>
+        // --- 1. 初始化 Supabase ---
+        const SUPABASE_URL = 'https://aricmqxxqivbkkkbmriy.supabase.co'; // 需替换！
+        const SUPABASE_KEY = 'sb_publishable_NVf67W37KnVmCD0LTn_RvQ_-kJwDdWq'; // 需替换！
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // --- 2. 获取并显示数据 ---
+        async function fetchData() {
+            const { data, error } = await supabase
+                .from('prize_pool')
+                .select('*')
+                .eq('id', 1)
+                .single();
+            
+            if (data) {
+                document.getElementById('money').innerText = data.balance;
+                document.getElementById('winCount').innerText = data.days_success;
+                document.getElementById('lossCount').innerText = data.days_failure;
+                document.getElementById('status').innerText = '最后同步: ' + new Date().toLocaleTimeString();
+            }
+        }
+
+        // --- 3. 修改数据的逻辑 ---
+        async function updateRecord(mChange, wChange, lChange) {
+            document.getElementById('status').innerText = '正在上传数据...';
+            
+            // 先获取当前值
+            const { data: current } = await supabase.from('prize_pool').select('*').eq('id', 1).single();
+            
+            // 更新数据库
+            const { error } = await supabase
+                .from('prize_pool')
+                .update({ 
+                    balance: current.balance + mChange,
+                    days_success: current.days_success + wChange,
+                    days_failure: current.days_failure + lChange
+                })
+                .eq('id', 1);
+
+            if (!error) {
+                fetchData(); // 刷新界面
+            } else {
+                alert('更新失败，检查下网络？');
+            }
+        }
+
+        // 页面打开时立即获取一次数据
+        fetchData();
+        // 每隔10秒自动刷新一次，实现“半实时”效果
+        setInterval(fetchData, 10000);
+    </script>
+</body>
+</html>
