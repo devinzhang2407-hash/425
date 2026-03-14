@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>宝贝单词存钱罐</title>
+    <title>单词打卡奖池</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --main-color: #ff8fa3; --bg-color: #fff0f3; }
@@ -22,7 +22,7 @@
 <body>
 
     <div class="card">
-        <div class="title">💰 考试奖金池 💰</div>
+        <div class="title">💰 六级奖金池 💰</div>
         <div class="balance">¥<span id="money">--</span></div>
         
         <div class="stats">
@@ -37,8 +37,8 @@
 
     <script>
         // --- 1. 初始化 Supabase ---
-        const SUPABASE_URL = 'https://aricmqxxqivbkkkbmriy.supabase.co'; // 需替换！
-        const SUPABASE_KEY = 'sb_publishable_NVf67W37KnVmCD0LTn_RvQ_-kJwDdWq'; // 需替换！
+        const SUPABASE_URL = 'https://aricmqxxqivbkkkbmriy.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_NVf67W37KnVmCD0LTn_RvQ_-kJwDdWq';
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // --- 2. 获取并显示数据 ---
